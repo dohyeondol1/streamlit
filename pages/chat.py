@@ -135,6 +135,7 @@ if "messages" not in st.session_state:
 for msg in st.session_state.messages:
     display_message(msg["role"], msg["content"])
 
+# 사용자 프롬프트 입력 처리
 if prompt := st.chat_input("What is up?"):
     initialize_assistant()
     handle_prompt(prompt)
