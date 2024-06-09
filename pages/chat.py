@@ -122,6 +122,7 @@ def display_response(run):
 if st.button("Clear"):
     clear_chat()
 
+# 대화창 나가기 버튼 클릭 시 채팅을 종료
 if st.button("대화창 나가기"):
     exit_chat()
 
