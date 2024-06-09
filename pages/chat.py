@@ -131,6 +131,7 @@ if st.button("대화창 나가기"):
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
+# 이전 메시지 표시
 for msg in st.session_state.messages:
     display_message(msg["role"], msg["content"])
 
