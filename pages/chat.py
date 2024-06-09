@@ -111,6 +111,7 @@ def handle_tool_calls(tool_calls, run):
     )
 
 def display_response(run):
+    # 어시스턴트의 응답을 가져와서 표시
     thread_messages = st.session_state.client.beta.threads.messages.list(
         st.session_state.thread.id, run_id=run.id)
     response = f"Echo: {thread_messages.data[0].content[0].text.value}"
