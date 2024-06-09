@@ -12,6 +12,7 @@ st.header("챗봇")
 
 @st.cache_data
 def generate_image(prompt):
+    # 주어진 프롬프트로 이미지를 생성하고 반환
     client = OpenAI(api_key=st.session_state.key)
     response = client.images.generate(model="dall-e-3", prompt=prompt)
     image_url = response.data[0].url
