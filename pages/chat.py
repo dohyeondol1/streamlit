@@ -72,6 +72,7 @@ def initialize_assistant():
         )
 
 def handle_prompt(prompt):
+    # 사용자 입력 프롬프트를 처리하고 스레드를 생성 및 폴링
     st.chat_message("user").markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
