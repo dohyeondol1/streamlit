@@ -119,6 +119,7 @@ def display_response(run):
     display_message("assistant", response)
     st.session_state.messages.append({"role": "assistant", "content": response})
 
+# Clear 버튼 클릭 시 채팅 기록을 삭제
 if st.button("Clear"):
     clear_chat()
 
