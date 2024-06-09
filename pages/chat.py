@@ -21,6 +21,7 @@ def generate_image(prompt):
     return img
 
 def display_message(role, content):
+    # 메시지나 이미지를 채팅 인터페이스에 표시
     with st.chat_message(role):
         if isinstance(content, str):
             st.markdown(content)
