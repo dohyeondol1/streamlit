@@ -127,6 +127,7 @@ if st.button("Clear"):
 if st.button("대화창 나가기"):
     exit_chat()
 
+# 메시지 초기화
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
