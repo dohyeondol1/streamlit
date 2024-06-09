@@ -48,6 +48,7 @@ def exit_chat():
         del st.session_state.assistant
 
 def initialize_assistant():
+    # 어시스턴트가 존재하지 않으면 초기화
     if "assistant" not in st.session_state:
         st.session_state.assistant = st.session_state.client.beta.assistants.create(
             instructions="챗봇입니다",
