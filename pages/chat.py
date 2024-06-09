@@ -96,6 +96,7 @@ def handle_prompt(prompt):
         display_response(run)
 
 def handle_tool_calls(tool_calls, run):
+    # 툴 호출을 처리하고 툴 출력을 제출
     tool_outputs = []
     for tool in tool_calls:
         func_name = tool.function.name
