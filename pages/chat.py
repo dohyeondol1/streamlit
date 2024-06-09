@@ -37,6 +37,7 @@ def clear_chat():
         del st.session_state.thread
 
 def exit_chat():
+    # 채팅을 종료하고, 메시지와 스레드, 어시스턴트를 삭제
     if "messages" in st.session_state:
         del st.session_state.messages
     if "thread" in st.session_state:
