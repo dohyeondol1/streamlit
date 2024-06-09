@@ -29,6 +29,7 @@ def display_message(role, content):
             st.image(content, use_column_width=True)
 
 def clear_chat():
+    # 채팅 기록과 스레드를 삭제
     if "messages" in st.session_state:
         del st.session_state.messages
     if "thread" in st.session_state:
