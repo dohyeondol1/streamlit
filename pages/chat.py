@@ -13,12 +13,16 @@ st.header("챗봇")
 @st.cache_data
 def generate_image(prompt):
     # 주어진 프롬프트로 이미지를 생성하고 반환
-    client = OpenAI(api_key=st.session_state.key)
-    response = client.images.generate(model="dall-e-3", prompt=prompt)
-    image_url = response.data[0].url
-    urllib.request.urlretrieve(image_url, 'img.png')
-    img = Image.open("img.png")
-    return img
+    try:
+        client = OpenAI(api_key=st.session_state.key)
+        response = client.images.generate(model="dall-e-3", prompt=prompt)
+        image_url = response.data[0].url
+        urllib.request.urlretrieve(image_url, 'img.png')
+        img = Image.open("img.png")
+        return img
+    except Exception as e:
+        st.error(f"이미지 생성 오류: {e}")
+        return None
 
 def display_message(role, content):
     # 메시지나 이미지를 채팅 인터페이스에 표시
@@ -73,57 +77,67 @@ def initialize_assistant():
 
 def handle_prompt(prompt):
     # 사용자 입력 프롬프트를 처리하고 스레드를 생성 및 폴링
-    st.chat_message("user").markdown(prompt)
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    try:
+        st.chat_message("user").markdown(prompt)
+        st.session_state.messages.append({"role": "user", "content": prompt})
 
-    st.session_state.thread = st.session_state.client.beta.threads.create(
-        messages=[{"role": "user", "content": prompt}]
-    )
+        st.session_state.thread = st.session_state.client.beta.threads.create(
+            messages=[{"role": "user", "content": prompt}]
+        )
 
-    run = st.session_state.client.beta.threads.runs.create_and_poll(
-        thread_id=st.session_state.thread.id,
-        assistant_id=st.session_state.assistant.id
-    )
+        run = st.session_state.client.beta.threads.runs.create_and_poll(
+            thread_id=st.session_state.thread.id,
+            assistant_id=st.session_state.assistant.id
+        )
 
-    run_check = st.session_state.client.beta.threads.runs.retrieve(
-        thread_id=st.session_state.thread.id,
-        run_id=run.id
-    )
+        run_check = st.session_state.client.beta.threads.runs.retrieve(
+            thread_id=st.session_state.thread.id,
+            run_id=run.id
+        )
 
-    if run_check.status == 'requires_action':
-        handle_tool_calls(run_check.required_action.submit_tool_outputs.tool_calls, run)
-    else:
-        display_response(run)
+        if run_check.status == 'requires_action':
+            handle_tool_calls(run_check.required_action.submit_tool_outputs.tool_calls, run)
+        else:
+            display_response(run)
+    except Exception as e:
+        st.error(f"프롬프트 처리 오류: {e}")
 
 def handle_tool_calls(tool_calls, run):
-    # 툴 호출을 처리하고 툴 출력을 제출
-    tool_outputs = []
-    for tool in tool_calls:
-        func_name = tool.function.name
-        kwargs = json.loads(tool.function.arguments)
-        output = generate_image(**kwargs)
-        # 이미지를 세션 상태에 저장
-        st.session_state.image = output
-        tool_outputs.append({"tool_call_id": tool.id, "output": "Image generated"})
+    try:
+        tool_outputs = []
+        for tool in tool_calls:
+            func_name = tool.function.name
+            kwargs = json.loads(tool.function.arguments)
+            output = generate_image(**kwargs)
+            if output:
+                st.session_state.image = output
+                tool_outputs.append({"tool_call_id": tool.id, "output": "Image generated"})
+            else:
+                tool_outputs.append({"tool_call_id": tool.id, "output": "Image generation failed"})
 
-    st.session_state.client.beta.threads.runs.submit_tool_outputs(
-        thread_id=st.session_state.thread.id,
-        run_id=run.id,
-        tool_outputs=tool_outputs
-    )
+        st.session_state.client.beta.threads.runs.submit_tool_outputs(
+            thread_id=st.session_state.thread.id,
+            run_id=run.id,
+            tool_outputs=tool_outputs
+        )
+    except Exception as e:
+        st.error(f"툴 호출 처리 오류: {e}")
 
 def display_response(run):
     # 어시스턴트의 응답을 가져와서 표시
-    thread_messages = st.session_state.client.beta.threads.messages.list(
-        st.session_state.thread.id, run_id=run.id)
-    response = f"Echo: {thread_messages.data[0].content[0].text.value}"
+    try:
+        thread_messages = st.session_state.client.beta.threads.messages.list(
+            st.session_state.thread.id, run_id=run.id)
+        response = f"Echo: {thread_messages.data[0].content[0].text.value}"
 
-    display_message("assistant", response)
-    st.session_state.messages.append({"role": "assistant", "content": response})
+        display_message("assistant", response)
+        st.session_state.messages.append({"role": "assistant", "content": response})
 
     # 생성된 이미지가 있으면 표시
-    if "image" in st.session_state:
-        display_message("assistant", st.session_state.image)
+        if "image" in st.session_state:
+            display_message("assistant", st.session_state.image)
+    except Exception as e:
+        st.error(f"응답 표시 오류: {e}")
 
 # Clear 버튼 클릭 시 채팅 기록을 삭제
 if st.button("Clear"):
