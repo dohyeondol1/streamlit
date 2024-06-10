@@ -4,11 +4,33 @@ import urllib.request
 from PIL import Image
 import json
 
-# API 키와 클라이언트 설정
-st.session_state.key = st.text_input("key", value=st.session_state.get("key", ""), type="password")
-st.session_state.client = OpenAI(api_key=st.session_state.key)
+def main():
+    # API 키와 클라이언트 설정
+    st.session_state.key = st.text_input("API Key", value=st.session_state.get("key", ""), type="password")
+    st.session_state.client = OpenAI(api_key=st.session_state.key)
 
-st.header("챗봇")
+    st.header("챗봇")
+
+    # Clear 버튼 클릭 시 채팅 기록을 삭제
+    if st.button("Clear"):
+        clear_chat()
+
+    # 대화창 나가기 버튼 클릭 시 채팅을 종료
+    if st.button("대화창 나가기"):
+        exit_chat()
+
+    # 메시지 초기화
+    if "messages" not in st.session_state:
+        st.session_state.messages = []
+
+    # 이전 메시지 표시
+    for msg in st.session_state.messages:
+        display_message(msg["role"], msg["content"])
+
+    # 사용자 프롬프트 입력 처리
+    if prompt := st.chat_input("What is up?"):
+        initialize_assistant()
+        handle_prompt(prompt)
 
 @st.cache_data
 def generate_image(prompt):
@@ -140,23 +162,5 @@ def display_response(run):
     except Exception as e:
         st.error(f"응답 표시 오류: {e}")
 
-# Clear 버튼 클릭 시 채팅 기록을 삭제
-if st.button("Clear"):
-    clear_chat()
-
-# 대화창 나가기 버튼 클릭 시 채팅을 종료
-if st.button("대화창 나가기"):
-    exit_chat()
-
-# 메시지 초기화
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-# 이전 메시지 표시
-for msg in st.session_state.messages:
-    display_message(msg["role"], msg["content"])
-
-# 사용자 프롬프트 입력 처리
-if prompt := st.chat_input("What is up?"):
-    initialize_assistant()
-    handle_prompt(prompt)
+if __name__ == "__main__":
+    main()
