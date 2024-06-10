@@ -12,7 +12,6 @@ st.header("챗봇")
 
 @st.cache_data
 def generate_image(prompt):
-    # 주어진 프롬프트로 이미지를 생성하고 반환
     try:
         client = OpenAI(api_key=st.session_state.key)
         response = client.images.generate(model="dall-e-3", prompt=prompt)
@@ -25,7 +24,6 @@ def generate_image(prompt):
         return None
 
 def display_message(role, content):
-    # 메시지나 이미지를 채팅 인터페이스에 표시
     with st.chat_message(role):
         if isinstance(content, str):
             st.markdown(content)
@@ -33,7 +31,6 @@ def display_message(role, content):
             st.image(content, use_column_width=True)
 
 def clear_chat():
-    # 채팅 기록과 스레드를 삭제
     if "messages" in st.session_state:
         del st.session_state.messages
     if "thread" in st.session_state:
@@ -41,7 +38,6 @@ def clear_chat():
         del st.session_state.thread
 
 def exit_chat():
-    # 채팅을 종료하고, 메시지와 스레드, 어시스턴트를 삭제
     if "messages" in st.session_state:
         del st.session_state.messages
     if "thread" in st.session_state:
@@ -52,7 +48,6 @@ def exit_chat():
         del st.session_state.assistant
 
 def initialize_assistant():
-    # 어시스턴트가 존재하지 않으면 초기화
     if "assistant" not in st.session_state:
         st.session_state.assistant = st.session_state.client.beta.assistants.create(
             instructions="챗봇입니다",
@@ -76,7 +71,6 @@ def initialize_assistant():
         )
 
 def handle_prompt(prompt):
-    # 사용자 입력 프롬프트를 처리하고 스레드를 생성 및 폴링
     try:
         st.chat_message("user").markdown(prompt)
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -120,11 +114,11 @@ def handle_tool_calls(tool_calls, run):
             run_id=run.id,
             tool_outputs=tool_outputs
         )
+        display_response(run)
     except Exception as e:
         st.error(f"툴 호출 처리 오류: {e}")
 
 def display_response(run):
-    # 어시스턴트의 응답을 가져와서 표시
     try:
         thread_messages = st.session_state.client.beta.threads.messages.list(
             st.session_state.thread.id, run_id=run.id)
@@ -133,7 +127,6 @@ def display_response(run):
         display_message("assistant", response)
         st.session_state.messages.append({"role": "assistant", "content": response})
 
-    # 생성된 이미지가 있으면 표시
         if "image" in st.session_state:
             display_message("assistant", st.session_state.image)
     except Exception as e:
