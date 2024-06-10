@@ -120,6 +120,7 @@ def handle_tool_calls(tool_calls, run):
             run_id=run.id,
             tool_outputs=tool_outputs
         )
+        display_response(run)
     except Exception as e:
         st.error(f"툴 호출 처리 오류: {e}")
 
