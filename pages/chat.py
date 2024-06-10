@@ -102,7 +102,9 @@ def handle_tool_calls(tool_calls, run):
         func_name = tool.function.name
         kwargs = json.loads(tool.function.arguments)
         output = generate_image(**kwargs)
-        tool_outputs.append({"tool_call_id": tool.id, "output": str(output)})
+        # 이미지를 세션 상태에 저장
+        st.session_state.image = output
+        tool_outputs.append({"tool_call_id": tool.id, "output": "Image generated"})
 
     st.session_state.client.beta.threads.runs.submit_tool_outputs(
         thread_id=st.session_state.thread.id,
@@ -118,6 +120,10 @@ def display_response(run):
 
     display_message("assistant", response)
     st.session_state.messages.append({"role": "assistant", "content": response})
+
+    # 생성된 이미지가 있으면 표시
+    if "image" in st.session_state:
+        display_message("assistant", st.session_state.image)
 
 # Clear 버튼 클릭 시 채팅 기록을 삭제
 if st.button("Clear"):
